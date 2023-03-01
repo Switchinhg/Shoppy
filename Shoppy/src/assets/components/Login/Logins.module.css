@@ -1,0 +1,13 @@
+.Login{
+    display: grid;
+    grid-gap: 5rem;
+}
+label{
+    font-size: 20px !important;
+}
+
+@media screen and (min-width:750px){
+    .Login{
+        display: flex;
+    }
+}
