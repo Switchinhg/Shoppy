@@ -1,11 +1,12 @@
 import mongoose from "mongoose";
 
 const UserSchema = new mongoose.Schema({
-    loginCode:{type: String ,required:true},
-    name:{type: String},
+    name:{type: String,required:true},
+    lastName:{type: String,required:true},
+    dateCreated:{type: String,required:true},
     lastSeen:{type: String, default: "Today"},
-    role:{type: String, default: "Cashier",required:true},
     email:{type: String, required:true},
+    business:{type:Array, required:false},
   });
 
   const user = mongoose.model('users', UserSchema);

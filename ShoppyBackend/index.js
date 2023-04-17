@@ -6,6 +6,7 @@ dotenv.config();
 
 /* Importar Routers */
 import br from './Routers/BusinessRouter.js'
+import UserRouter from './Routers/UserRouter.js'
 
 /* Inicializar Express */
 
@@ -29,3 +30,4 @@ app.use(express.json())
 
 
 app.use('/api', br)
+app.use('/api', UserRouter)
