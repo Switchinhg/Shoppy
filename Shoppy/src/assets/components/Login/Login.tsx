@@ -42,6 +42,7 @@ export default function Login() {
   /* Si el mail esta bien, mandar mail al usuario. */
   const LoginUsuario = async (e:FormEvent<HTMLFormElement>) =>{
     e.preventDefault()
+    console.log("usuarioLogin")
     // console.log((e.currentTarget[0] as HTMLInputElement).value)/* Email */
     
       const resp = await fetch(`${import.meta.env.VITE_APP_FETCH}/api/userLogin`,{
