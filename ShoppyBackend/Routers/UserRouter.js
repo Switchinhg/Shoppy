@@ -12,6 +12,7 @@ const expTime = "1w"
 /* import Business schema */
 import user from '../Models/UserModel.js'
 import sessionMiddleware from '../Middlewares/session.js'
+import { MagikLink } from '../helpers/magikLink.js'
 
 /* Nodemailer */
 
@@ -24,42 +25,6 @@ let transporter = nodemailer.createTransport({
 })
 
 
-
-/* -----------Crypto----------- */
-const {
-    scrypt,
-    randomFill,
-    createCipheriv,
-  } = await import('node:crypto');
-const algorithm = 'aes-256-cbc'
-// const key = crypto.randomBytes(32);
-// const iv = crypto.randomBytes(16); // generando un iv aleatorio
-
-const iv = new Uint8Array(16)
-const key = new Uint8Array(32)
-
-
-
-function encrypt(text) {
-    const cipher = createCipheriv(algorithm, key, iv);
-
-    let encrypted = '';
-    cipher.setEncoding('hex');
-    cipher.on('data', (chunk) => encrypted += chunk);
-    cipher.on('end', () => console.log(encrypted));
-
-    cipher.write(text);
-    cipher.end();
-
-
-    // let encrypted = cipher.update(text, 'utf8', 'hex');
-    // encrypted += cipher.final('hex');
-    // return `${iv.toString('hex')}:${encrypted}`;
-    return encrypted
-  }
-
-
-/* ---------- */
 const UserRouter = express.Router();
 
 
@@ -90,6 +55,23 @@ UserRouter.post('/userLogin', async (req, res) => {
 
         const timestamp = Date.now().toLocaleString()
         const JasonWebToken = JWT.sign({eMail,timestamp},secretKey,{expiresIn:expTime})
+        
+        if(userFound.magiklink && userFound.magiklink.expiracion > Date.now()){
+            console.log("ya hay uno existente")
+            return res.send({"success":false,"message":"Ya hay un link magico activo"})
+        }
+        if(userFound.magiklink && userFound.magiklink.expiracion < Date.now()){
+            userFound.magiklink = null
+            console.log("borrado")
+        }
+        
+        const link = MagikLink()
+        link.JWT = JasonWebToken
+
+        userFound.magiklink = link
+
+        await userFound.save()
+
 
         
         //TODO ver como hacer el link magico, pensado: hacer un frontend.com/success/JWT 
@@ -101,10 +83,11 @@ UserRouter.post('/userLogin', async (req, res) => {
             text:'Creaste correctamente tu cuenta en FocusG! muchas gracias!',
             // TODO EDITAR HTML
             html: 
-                `<div style="background-color: rgb(175, 255, 238);margin: 0 auto;text-align: center; padding: 2rem 0;">
+                `
+                <div style="background-color: rgb(175, 255, 238);margin: 0 auto;text-align: center; padding: 2rem 0;">
                         <h1>Bienvenido a shoppy.gg!</h1>
                         <p>Este es tu link para entrar a tu cuenta!</p>
-                        <a href="${process.env.FRONTEND}/success/${encrypt(JasonWebToken)}" target="_blank" >Click aquí!</a>
+                        <a href="${process.env.FRONTEND}/link?key=${link.url}" target="_blank" >Click aquí!</a>
                 </div>
                 ` 
         }

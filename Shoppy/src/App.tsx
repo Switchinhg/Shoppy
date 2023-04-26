@@ -2,7 +2,8 @@ import { useState } from 'react'
 import './App.css'
 import {BrowserRouter as Router, Routes, Route }from 'react-router-dom'
 import Login from './assets/components/Login/Login'
-import Success from './assets/components/Login/Success'
+import LinkUnico from './assets/components/Login/LinkUnico'
+// import LinkUnico from './assets/components/Login/LinkUnico'
 
 
 
@@ -13,7 +14,8 @@ function App() {
       <Router>
         <Routes>
           <Route path='/' element={<Login/>}/>
-          <Route path='/success/:jwt' element={<Success/>}/>
+          {/* <Route path='/success/:jwt' element={<LinkUnico/>}/> */}
+          <Route path='/link' element={<LinkUnico/>}/>
 
         </Routes>
 

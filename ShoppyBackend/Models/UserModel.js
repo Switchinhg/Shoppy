@@ -7,6 +7,7 @@ const UserSchema = new mongoose.Schema({
     lastSeen:{type: String, default: "Today"},
     email:{type: String, required:true},
     business:{type:Array, required:false},
+    magiklink:{type:Object},
   });
 
   const user = mongoose.model('users', UserSchema);
