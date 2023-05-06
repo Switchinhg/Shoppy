@@ -59,7 +59,9 @@ export default function Login() {
         navigate("/success")
         setError("")
       }else{
-        setError(`Error: ${data.message}`)
+        if(data.message !== "ok"){
+          setError(`Error: ${data.message}`)
+        }
       }
 
   }

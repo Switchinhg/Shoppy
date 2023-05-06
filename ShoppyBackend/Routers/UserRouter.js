@@ -67,15 +67,14 @@ UserRouter.post('/userLogin', async (req, res) => {
         
         const link = MagikLink()
         link.JWT = JasonWebToken
+        link.used = false
 
         userFound.magiklink = link
+        
 
         await userFound.save()
 
 
-        
-        //TODO ver como hacer el link magico, pensado: hacer un frontend.com/success/JWT 
-        //TODO y en el frontend usar params y guardar el JWT
         let mailOptions={
             from:`${process.env.EMAIL}`,
             to:eMail,
@@ -87,7 +86,7 @@ UserRouter.post('/userLogin', async (req, res) => {
                 <div style="background-color: rgb(175, 255, 238);margin: 0 auto;text-align: center; padding: 2rem 0;">
                         <h1>Bienvenido a shoppy.gg!</h1>
                         <p>Este es tu link para entrar a tu cuenta!</p>
-                        <a href="${process.env.FRONTEND}/link?key=${link.url}" target="_blank" >Click aquí!</a>
+                        <a href="${process.env.FRONTEND}/link?key=${link.url}&email=${eMail}" target="_blank" >Click aquí!</a>
                 </div>
                 ` 
         }
@@ -104,9 +103,30 @@ UserRouter.post('/userLogin', async (req, res) => {
     }
     
 
-    // res.send({"sucess":true,data})
+    res.send({"success":true,"message":"ok"})
 })
 
+//TODO QUEDE ACA 26/4
+UserRouter.post('/magikLinks', async (req,res)=>{
+    const {url,email} = req.body
 
+    console.log(url,email)
+
+    const userFound = await  user.findOne({email})
+    console.log(userFound)
+    if(userFound.magiklink?.url !== url || userFound.magiklink?.expiracion < Date.now()){
+        console.log('entro en if')
+        res.send({"success":false,"message":"datos erroneos o link caducado"})
+    }else{
+        console.log('entro en else')
+        userFound.magiklink = null
+
+        await userFound.save()
+
+        // res.send({"success":true,JWT:userFound.magiklink.JWT})
+    }
+
+
+})
 
 export default UserRouter
