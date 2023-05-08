@@ -9,28 +9,36 @@ const checkAuth = (req,res,next)=>{
 
     /* buscar header auth con el jwt */
     const authHeader = req.headers.authorization
+    console.log("no")
+    
     if(!authHeader){
-        return res.status(401).json({message:'unauthorized'})
+        console.log("no authentication")
+        next()
+        // return res.status(401).json({message:'unauthorized'})
     }
     /* Verificar JWT */
     try {
-            const token = authHeader.split(' ')[1];
-            const verif = JWT.verify(token, secretKey)
+            let token = authHeader.split(' ')[1];
+            console.log("entre aca")
+            const result = token.slice(1, -1);
+            const verif = JWT.verify(result, secretKey)
+
 
             if (verif.exp < Date.now() / 1000){
                 /* JWT expirado */
-                
+                console.log("no")
             }else{
                 /* se pasa el jwt para la ruta */
                 req.user = verif
-    
+                console.log("ok")
                 next()
             }
 
          
     }
-    catch{
-        return res.status(401).json({message:'unauthorized'})
+    catch(e){
+        console.log("erriro", e)
+        // return res.status(401).json({message:'unauthorized'})
     }
 }
 

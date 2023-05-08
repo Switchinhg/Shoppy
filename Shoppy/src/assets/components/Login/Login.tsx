@@ -1,4 +1,4 @@
-import React, { FormEvent, useState } from 'react'
+import React, { FormEvent, useEffect, useState } from 'react'
 import { useNavigate } from "react-router-dom";
 import {Button, TextField} from '@mui/material/';
 import Logins from './Logins.module.css'
@@ -65,6 +65,26 @@ export default function Login() {
       }
 
   }
+
+  const autoLogin = async () => {
+    console.log(localStorage.getItem('JWT'))
+    const resp = await fetch(`${import.meta.env.VITE_APP_FETCH}/api/userLogin`,{
+      method:'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('JWT')}`
+      },
+    })
+    const data = await resp.json()
+    if(data.success === true){
+      navigate("/success")
+    }
+  }
+
+  useEffect(() => {
+    autoLogin()
+  }, [])
+  
 
   
   return (

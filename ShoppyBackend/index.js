@@ -2,6 +2,7 @@ import  express   from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cors from 'cors';
+import checkAuth from './Middlewares/checkJWT.js';
 dotenv.config();
 
 /* Importar Routers */
@@ -30,4 +31,4 @@ app.use(express.json())
 
 
 app.use('/api', br)
-app.use('/api', UserRouter)
+app.use('/api', checkAuth , UserRouter)

@@ -48,22 +48,21 @@ UserRouter.post('/createUser', async (req, res) => {
 UserRouter.post('/userLogin', async (req, res) => {
 
     const {eMail}  = req.body
-    console.log(eMail)
+
     const userFound = await  user.findOne({email:eMail})
-    console.log(userFound)
     if(userFound){
 
-        const timestamp = Date.now().toLocaleString()
-        const JasonWebToken = JWT.sign({eMail,timestamp},secretKey,{expiresIn:expTime})
-        
-        if(userFound.magiklink && userFound.magiklink.expiracion > Date.now()){
+        if(userFound.magiklink.expiracion > Date.now() && userFound.magiklink.used=== false){
             console.log("ya hay uno existente")
             return res.send({"success":false,"message":"Ya hay un link magico activo"})
         }
-        if(userFound.magiklink && userFound.magiklink.expiracion < Date.now()){
+        if( userFound.magiklink.expiracion < Date.now() || userFound.magiklink.used === true){
             userFound.magiklink = null
             console.log("borrado")
         }
+        const timestamp = Date.now().toLocaleString()
+        const JasonWebToken = JWT.sign({eMail,timestamp},secretKey,{expiresIn:expTime})
+        
         
         const link = MagikLink()
         link.JWT = JasonWebToken
@@ -113,17 +112,25 @@ UserRouter.post('/magikLinks', async (req,res)=>{
     console.log(url,email)
 
     const userFound = await  user.findOne({email})
-    console.log(userFound)
-    if(userFound.magiklink?.url !== url || userFound.magiklink?.expiracion < Date.now()){
+
+    console.log(userFound.magiklink?.used === true)
+    console.log("userFound.magiklink ANTES")
+    console.log(userFound.magiklink)
+    // console.log(userFound.magiklink.used)
+    if(userFound.magiklink?.url !== url || userFound.magiklink?.expiracion < Date.now() || userFound.magiklink?.used === true ){
         console.log('entro en if')
         res.send({"success":false,"message":"datos erroneos o link caducado"})
     }else{
         console.log('entro en else')
-        userFound.magiklink = null
-
+        userFound.magiklink.used = true
+        userFound.markModified('magiklink.used')
+        
+        console.log("userFound.magiklink DESPUES")
+        console.log(userFound.magiklink)
         await userFound.save()
 
-        // res.send({"success":true,JWT:userFound.magiklink.JWT})
+
+        res.send({"success":true,JWT:userFound.magiklink.JWT})
     }
 
 
